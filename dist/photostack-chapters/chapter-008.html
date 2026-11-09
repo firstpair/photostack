@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
+  <title>Working without the originals</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">The FirstPair Photo Stack</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">The FirstPair Photo Stack</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-009.html" accesskey="n" rel="next">Which tool answers which question</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-007.html" accesskey="p" rel="previous">A shuttle disk, through Semantic Unison</a>
+</span>
+</div>
+</nav>
+<h1 data-number="7" id="working-without-the-originals"><span
+class="header-section-number">7</span> Working without the
+originals</h1>
+<p>Previews are small, and originals are large and often offline. Two
+paths make previews useful on their own.</p>
+<ul>
+<li><strong>Lightroom’s previews.</strong> Lightroom Classic builds
+regular previews and Smart Previews. <a
+href="https://firstpair.org/books/lightroom-repair/">Lightroom
+Repair</a> describes building and verifying them without disturbing the
+catalog.</li>
+<li><strong>Serving them as a library.</strong> <a
+href="https://firstpair.org/books/diskproxy/">diskproxy</a> presents a
+folder as a virtual disk without writing it. Its previews plugin serves
+Smart Previews as DNG stand-ins with a large preview added, or preview
+JPEGs with camera EXIF spliced in from small stubs; the stubs can be
+written from phindex’s metadata records and kept in one SQLite store. An
+application such as Photo Mechanic then shows camera, lens, exposure and
+GPS for every preview. On a writable view, ratings, labels and flags it
+writes are captured as small XMP sidecars with a journal, and the source
+is never touched.</li>
+</ul>
+<p>Bringing those ratings back into a Lightroom catalog has to go
+through Lightroom’s own writer; Lightroom Repair says what is and is not
+qualified for that.</p>
+</body>
+</html>

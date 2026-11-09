@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
+  <title>Which tool answers which question</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">The FirstPair Photo Stack</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">The FirstPair Photo Stack</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-010.html" accesskey="n" rel="next">Who owns what</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-008.html" accesskey="p" rel="previous">Working without the originals</a>
+</span>
+</div>
+</nav>
+<h1 data-number="8" id="which-tool-answers-which-question"><span
+class="header-section-number">8</span> Which tool answers which
+question</h1>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question</th>
+<th>Start with</th>
+<th>Book</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Is this file in my backup?</td>
+<td>SHA-256, then raw blocks or image data, from the indexes</td>
+<td>phindex, phidentify</td>
+</tr>
+<tr>
+<td>Was this only a metadata edit?</td>
+<td>the preserved digest and the metadata diff</td>
+<td>phidentify</td>
+</tr>
+<tr>
+<td>What changed in the metadata, across a whole archive?</td>
+<td><code>dngc query</code></td>
+<td>DNG Compare</td>
+</tr>
+<tr>
+<td>Can I delete this copy?</td>
+<td><code>dngc run</code>, then <code>dngc verify</code></td>
+<td>DNG Compare</td>
+</tr>
+<tr>
+<td>Did the shuttle copy arrive intact?</td>
+<td>SHA-256; the preserved digest if metadata was written on
+arrival</td>
+<td>phidentify, Semantic Unison</td>
+</tr>
+<tr>
+<td>Is this still the original my catalog recorded?</td>
+<td>the Lightroom fingerprint</td>
+<td>phidentify, Lightroom Repair</td>
+</tr>
+<tr>
+<td>Can I browse and rate with the originals offline?</td>
+<td>diskproxy’s previews plugin</td>
+<td>diskproxy</td>
+</tr>
+<tr>
+<td>How do I keep a million small files on a backup disk?</td>
+<td>packdir</td>
+<td>packdir</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

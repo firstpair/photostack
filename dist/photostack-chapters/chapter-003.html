@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
+  <title>The problem</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">The FirstPair Photo Stack</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">The FirstPair Photo Stack</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-004.html" accesskey="n" rel="next">The stack</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-002.html" accesskey="p" rel="previous">About this book</a>
+</span>
+</div>
+</nav>
+<h1 data-number="2" id="the-problem"><span
+class="header-section-number">2</span> The problem</h1>
+<p>A photograph rarely exists once. There is the camera’s file, a DNG
+converted from it, a copy on a backup disk, another on a shuttle disk,
+previews in a catalog, and a cloud original. Over years the copies
+drift. An editor writes a rating into one. A converter rewrites another.
+A clock correction shifts every capture time. A copy is interrupted
+halfway and nobody notices.</p>
+<p>Then someone wants to free a disk, and has to answer a question that
+sounds simple: <em>is everything on this disk somewhere else?</em> The
+usual tools answer badly in both directions.</p>
+<ul>
+<li><strong>A checksum says “different” too often.</strong> Two DNGs
+with the same sensor samples and a different rating have different
+SHA-256 hashes. Deleting by checksum keeps everything.</li>
+<li><strong>A file name says “same” too easily.</strong> Two files
+called <code>IMG_0001.DNG</code> may be different photographs, or one
+may be truncated. Deleting by name loses things.</li>
+<li><strong>A thumbnail can lie.</strong> A DNG’s embedded preview sits
+early in the file. When a copy is cut short, the preview often survives,
+and the file looks fine in every browser while its raw data is
+gone.</li>
+</ul>
+<p>The tools in this book answer the question properly. They identify
+photographs by what they contain, remember those identities for whole
+volumes, account for one volume in another by content, and keep every
+byte that would otherwise be lost, as a delta against the copy that
+remains.</p>
+</body>
+</html>

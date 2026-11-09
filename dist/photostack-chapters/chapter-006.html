@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
+  <title>The archive</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">The FirstPair Photo Stack</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">The FirstPair Photo Stack</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-007.html" accesskey="n" rel="next">A shuttle disk, through Semantic Unison</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-005.html" accesskey="p" rel="previous">One volume accounted for in another</a>
+</span>
+</div>
+</nav>
+<h1 data-number="5" id="the-archive"><span
+class="header-section-number">5</span> The archive</h1>
+<p>Everything the walk above keeps ends up in one directory, a
+<code>dngc</code> archive. <a
+href="https://firstpair.org/books/dng-compare/">DNG Compare</a> owns the
+format and describes it in full (its Part II); <a
+href="https://firstpair.org/books/semantic-unison/">Semantic Unison</a>
+writes the same layout when it preserves what a shuttle disk brings.
+This is its shape.</p>
+<pre class="text"><code>ARCHIVE/
+  ARCHIVE.json          every run: options, sources, implementation, exit statuses
+  MIGRATION.jsonl       each step of a migration from an older layout
+  report/               the comparison
+    pairs.jsonl           one result per pair: raw equal or not, metadata changes
+    summary.json
+    cache.sqlite3         what a repeated run reuses
+  bytes/                the preservation: what rebuilds every source file
+    recovery.sqlite3      one record per source file, earlier versions, errors
+    deltas/               VCDIFF deltas against the reference copies
+    originals/            full copies of files with no counterpart
+    versions/LABEL/       payloads of earlier contents of a refilled path
+  metadata/             the searchable metadata
+    batches/*.jsonl.gz    each file&#39;s metadata record on both sides of its pair
+    differences.sqlite3   one row per changed tag per file, for SQL queries
+    summary.json, provenance.json</code></pre>
+<p><strong>Every source file has one record, of one of three
+kinds.</strong></p>
+<ul>
+<li><strong>Identical</strong>: the reference holds the same bytes. The
+record keeps both SHA-256s, both identities (inode, size, modification
+and change time) and the file’s attributes, and no payload.</li>
+<li><strong>Delta</strong>: the reference differs. The record names a
+delta that rebuilds the source from the reference; the delta was decoded
+again and checked against the source’s SHA-256 before it counted.</li>
+<li><strong>Full copy</strong>: the source has no counterpart, so the
+file itself is kept under <code>originals/</code>.</li>
+</ul>
+<p><code>dngc restore</code> needs only a record, the payload it names,
+and for a delta the reference file; it checks the rebuilt file’s SHA-256
+and restores its mode, times, flags and extended attributes. Records
+name payloads relative to <code>bytes/</code>, so the archive can be
+moved as a whole.</p>
+<p><strong>The metadata section is evidence, not a backup.</strong> It
+holds what an editor changed, tag by tag, so a question such as “which
+files lost their rating” is one query. It never rebuilds a file; the
+byte section does. A pair whose two files have the same SHA-256 keeps
+only that hash, since its metadata cannot differ, and a file of a type
+the metadata engine does not read, such as an editor’s cache file, is
+listed as having no metadata rather than as an error. Records of Perl
+ExifTool and of exiftool-rs are separate identities and never mixed in
+one archive.</p>
+<p><strong>What the format guarantees.</strong></p>
+<ul>
+<li><strong>Nothing is overwritten.</strong> A path whose content
+changes between runs keeps every content it had, each under a version
+label; <code>dngc versions</code> lists them.</li>
+<li><strong>A missing source is not an error in the archive.</strong> An
+emptied shuttle disk leaves its earlier records as they were.</li>
+<li><strong>Reading changes nothing.</strong> <code>status</code>,
+<code>verify</code>, <code>query</code>, <code>versions</code> and
+<code>restore</code> open the databases so that no <code>-wal</code> or
+<code>-shm</code> file appears, and need no source.</li>
+<li><strong>Damage is preserved, not repaired.</strong> A damaged source
+is kept damaged, byte for byte; finding damage is the comparison’s
+job.</li>
+</ul>
+<p>An archive written before this layout kept its byte section at the
+top; <code>dngc migrate</code> moves it into <code>bytes/</code>,
+logging every step to <code>MIGRATION.jsonl</code> first, so an
+interrupted migration resumes and <code>--undo</code> reverses it.</p>
+</body>
+</html>

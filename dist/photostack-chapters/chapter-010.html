@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
+  <title>Who owns what</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">The FirstPair Photo Stack</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">The FirstPair Photo Stack</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-009.html" accesskey="p" rel="previous">Which tool answers which question</a>
+</span>
+</div>
+</nav>
+<h1 data-number="9" id="who-owns-what"><span
+class="header-section-number">9</span> Who owns what</h1>
+<p>Each contract is explained in full in one book. The others give it a
+sentence and a link.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Contract</th>
+<th>Owning book</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The identities and what equality proves</td>
+<td>phidentify</td>
+</tr>
+<tr>
+<td>Index schema, align tiers, pair files</td>
+<td>phindex</td>
+</tr>
+<tr>
+<td>Archive layout, byte-section rule, versions, the engine rule</td>
+<td>DNG Compare</td>
+</tr>
+<tr>
+<td>DNG profiles, <code>SDE/0-preserved</code>, the shuttle cycle</td>
+<td>Semantic Unison</td>
+</tr>
+<tr>
+<td>Grammars and refusals for the XMP region</td>
+<td>tiffgraph</td>
+</tr>
+<tr>
+<td>Container format and clones</td>
+<td>packdir</td>
+</tr>
+<tr>
+<td>Engines, journals, sealing and the Turso rules</td>
+<td>Tursolite</td>
+</tr>
+<tr>
+<td>Map file, metadata splicing, ratings capture</td>
+<td>diskproxy</td>
+</tr>
+<tr>
+<td>Catalog, preview and Sync procedures</td>
+<td>Lightroom Repair</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="9.1" id="where-it-fits"><span
+class="header-section-number">9.1</span> Where it fits</h2>
+<p>This book is one of nine on the FirstPair photo tools. Each owns one
+part, and <a href="https://firstpair.org/books/photostack/">The
+FirstPair Photo Stack</a> shows how they fit together.</p>
+<ul>
+<li><strong><a
+href="https://firstpair.org/books/tiffgraph/">tiffgraph</a></strong>
+walks a TIFF or DNG file’s structure under a fixed grammar and finds its
+editable XMP packet.</li>
+<li><strong><a
+href="https://firstpair.org/books/phidentify/">phidentify</a></strong>
+computes a photo’s identities: SHA-256, DNG raw blocks, image data,
+Lightroom fingerprint, metadata record and preserved digest.</li>
+<li><strong><a
+href="https://firstpair.org/books/phindex/">phindex</a></strong> keeps
+those identities for every file of a volume, and aligns two volumes by
+content.</li>
+<li><strong><a href="https://firstpair.org/books/dng-compare/">DNG
+Compare</a></strong> compares pairs and preserves one side byte for byte
+as deltas against the other, with a searchable metadata section, through
+<code>dngc</code>.</li>
+<li><strong><a
+href="https://firstpair.org/books/semantic-unison/">Semantic
+Unison</a></strong> synchronizes photo trees, sending metadata edits
+without resending image bytes, and preserves what a shuttle disk brings
+into the same archives.</li>
+<li><strong><a
+href="https://firstpair.org/books/packdir/">packdir</a></strong> keeps
+directories of small files as SQLite archives that still work like plain
+files.</li>
+<li><strong><a
+href="https://firstpair.org/books/tursolite/">Tursolite</a></strong> is
+the SQLite and Turso layer under packdir, DNG Compare and Mechanic.</li>
+<li><strong><a
+href="https://firstpair.org/books/diskproxy/">diskproxy</a></strong>
+serves a folder as a virtual disk, such as previews with camera metadata
+spliced in, and captures ratings into sidecars.</li>
+<li><strong><a
+href="https://firstpair.org/books/lightroom-repair/">Lightroom
+Repair</a></strong> repairs Lightroom Classic catalogs, previews and
+Sync without forging their state.</li>
+</ul>
+<p>The block above is the one every book carries word for word. Its
+source is <code>where-it-fits.md</code> in this book’s repository, and
+<code>scripts/check-where-it-fits.py</code> checks a book’s copy against
+it.</p>
+</body>
+</html>

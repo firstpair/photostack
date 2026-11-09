@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 640" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#666"/></marker>
+  </defs>
+  <rect width="760" height="640" fill="#ffffff"/>
+  <text x="24" y="32" font-size="16" font-weight="bold" fill="#111">Each layer is one book, built on the layer below</text>
+  <text x="24" y="52" font-size="11.5" fill="#555">Arrows: uses. Dashed: not a FirstPair book.</text>
+  <g font-size="11.5" font-weight="bold" fill="#555">
+    <text x="24" y="120">Applications</text><text x="24" y="216">Sync and storage</text>
+    <text x="24" y="304">Comparison and</text><text x="24" y="320">preservation</text>
+    <text x="24" y="408">Index and alignment</text><text x="24" y="504">Identity</text><text x="24" y="600">Reading files</text>
+  </g>
+  <g fill="none" stroke="#666" stroke-width="1.25">
+    <rect x="184" y="80" width="268" height="72" rx="8"/><rect x="468" y="80" width="268" height="72" rx="8"/>
+    <rect x="184" y="176" width="268" height="72" rx="8"/><rect x="468" y="176" width="268" height="72" rx="8"/>
+    <rect x="184" y="272" width="552" height="72" rx="8"/><rect x="184" y="368" width="552" height="72" rx="8"/>
+    <rect x="184" y="464" width="552" height="72" rx="8"/>
+    <rect x="184" y="560" width="268" height="72" rx="8"/><rect x="468" y="560" width="268" height="72" rx="8" stroke-dasharray="4 4"/>
+    <path d="M318 248V272" marker-end="url(#a)"/><path d="M460 344V368" marker-end="url(#a)"/>
+    <path d="M460 440V464" marker-end="url(#a)"/><path d="M318 536V560" marker-end="url(#a)"/><path d="M602 536V560" marker-end="url(#a)"/>
+    <path d="M452 212H468" marker-end="url(#a)"/>
+  </g>
+  <g font-size="11.5" fill="#555"><text x="328" y="264">preserves into</text><text x="470" y="360">--index, pair lists</text><text x="470" y="456">computes identities</text></g>
+  <g fill="#111">
+    <text x="200" y="104" font-weight="bold">Lightroom Repair</text><text x="200" y="124" font-size="11.5">Catalog, preview and Sync repair</text><text x="200" y="140" font-size="11.5">Builds the regular and Smart Previews</text>
+    <text x="484" y="104" font-weight="bold">diskproxy</text><text x="484" y="124" font-size="11.5">Serves previews as a virtual disk</text><text x="484" y="140" font-size="11.5">Camera EXIF spliced in; ratings to sidecars</text>
+    <text x="200" y="200" font-weight="bold">Semantic Unison</text><text x="200" y="220" font-size="11.5">Shuttle sync, metadata-only transfer</text><text x="200" y="236" font-size="11.5">Writes the same archive layout</text>
+    <text x="484" y="200" font-weight="bold">packdir, on Tursolite</text><text x="484" y="220" font-size="11.5">One SQLite archive per folder</text><text x="484" y="236" font-size="11.5">Stores the preview mirror for Unison</text>
+    <text x="200" y="296" font-weight="bold">DNG Compare (dngc)</text><text x="200" y="316" font-size="11.5">Compares, preserves and records metadata in one pass per pair</text><text x="200" y="332" font-size="11.5">Archive: report/, bytes/, metadata/; restores any version byte for byte</text>
+    <text x="200" y="392" font-weight="bold">phindex</text><text x="200" y="412" font-size="11.5">One index per volume: identities and metadata record of every file</text><text x="200" y="428" font-size="11.5">align: matches two volumes by content into pair lists</text>
+    <text x="200" y="488" font-weight="bold">phidentify</text><text x="200" y="508" font-size="11.5">Six identities: SHA-256, DNG raw blocks, image data,</text><text x="200" y="524" font-size="11.5">Lightroom fingerprint, metadata record, preserved digest</text>
+    <text x="200" y="584" font-weight="bold">tiffgraph</text><text x="200" y="604" font-size="11.5">Bounded TIFF and DNG walker</text><text x="200" y="620" font-size="11.5">Finds the XMP region, refuses the rest</text>
+    <text x="484" y="584" font-weight="bold">ExifTool engines</text><text x="484" y="604" font-size="11.5">Perl ExifTool: the engine of record</text><text x="484" y="620" font-size="11.5">exiftool-rs: fast, a separate identity</text>
+  </g>
+</svg>
