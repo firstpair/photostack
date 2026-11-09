@@ -91,6 +91,7 @@ ARCHIVE/
     batches/*.jsonl.gz    each file's metadata record on both sides of its pair
     differences.sqlite3   one row per changed tag per file, for SQL queries
     summary.json, provenance.json
+  trash/DROP/           payloads of records dngc drop moved to the trash
 ```
 
 **Every source file has one record, of one of three kinds.**
@@ -106,9 +107,12 @@ ARCHIVE/
 **What the format guarantees.**
 
 - **Nothing is overwritten.** A path whose content changes between runs keeps every content it had, each under a version label; `dngc versions` lists them.
+- **Nothing is removed unless asked.** A run never deletes a record. `dngc drop` does, in two stages: to the archive's trash first, from which `dngc trash restore` brings it back, and for good only with `--force` or `trash empty`.
 - **A missing source is not an error in the archive.** An emptied shuttle disk leaves its earlier records as they were.
 - **Reading changes nothing.** `status`, `verify`, `query`, `versions` and `restore` open the databases so that no `-wal` or `-shm` file appears, and need no source.
 - **Damage is preserved, not repaired.** A damaged source is kept damaged, byte for byte; finding damage is the comparison's job.
+
+**Listing and pruning.** `dngc ls` prints the records a pattern, a kind or a changed metadata tag selects, one per line or NUL-separated for `xargs -0`, as relative, source or reference paths. `dngc drop` removes records and leaves a tombstone, so later runs do not preserve those files again. `dngc keep` turns records that depend on a reference copy into full copies, so the reference can be deleted without loss; deleting a reference file under an identical or delta record would otherwise leave that record unrestorable. DNG Compare's chapter on these commands has the details and examples.
 
 An archive written before this layout kept its byte section at the top; `dngc migrate` moves it into `bytes/`, logging every step to `MIGRATION.jsonl` first, so an interrupted migration resumes and `--undo` reverses it.
 
