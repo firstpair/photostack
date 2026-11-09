@@ -70,6 +70,48 @@ Only now may the source volume be freed, and only together with the archive and 
 
 On one real pair of volumes, 1.7 million source files, this accounted for 1.2 million identical files without reading them, 480,000 DNGs whose raw samples matched but whose bytes did not, and 5,600 files with no copy at all. It also found 77 originals that had been truncated long ago while an intact converted copy existed elsewhere: the case where deleting by thumbnail would have kept the broken files.
 
+# The archive
+
+Everything the walk above keeps ends up in one directory, a `dngc` archive. [DNG Compare](https://firstpair.org/books/dng-compare/) owns the format and describes it in full (its Part II); [Semantic Unison](https://firstpair.org/books/semantic-unison/) writes the same layout when it preserves what a shuttle disk brings. This is its shape.
+
+```text
+ARCHIVE/
+  ARCHIVE.json          every run: options, sources, implementation, exit statuses
+  MIGRATION.jsonl       the steps of a migration from an older layout, if there was one
+  report/               the comparison
+    pairs.jsonl           one result per pair: raw data equal or not, metadata differences
+    summary.json
+    cache.sqlite3         what a repeated run reuses
+  bytes/                the preservation: what rebuilds every source file
+    recovery.sqlite3      one record per source file, earlier versions, errors
+    deltas/               VCDIFF deltas against the reference copies
+    originals/            full copies of files with no counterpart
+    versions/LABEL/       payloads of earlier contents of a refilled path
+  metadata/             the searchable metadata
+    batches/*.jsonl.gz    each file's metadata record on both sides of its pair
+    differences.sqlite3   one row per changed tag per file, for SQL queries
+    summary.json, provenance.json
+```
+
+**Every source file has one record, of one of three kinds.**
+
+- **Identical**: the reference holds the same bytes. The record keeps both SHA-256s, both identities (inode, size, modification and change time) and the file's attributes, and no payload.
+- **Delta**: the reference differs. The record names a delta that rebuilds the source from the reference; the delta was decoded again and checked against the source's SHA-256 before it counted.
+- **Full copy**: the source has no counterpart, so the file itself is kept under `originals/`.
+
+`dngc restore` needs only a record, the payload it names, and for a delta the reference file; it checks the rebuilt file's SHA-256 and restores its mode, times, flags and extended attributes. Records name payloads relative to `bytes/`, so the archive can be moved as a whole.
+
+**The metadata section is evidence, not a backup.** It holds what an editor changed, tag by tag, so a question such as "which files lost their rating" is one query. It never rebuilds a file; the byte section does. A pair whose two files have the same SHA-256 keeps only that hash, since its metadata cannot differ, and a file of a type the metadata engine does not read, such as an editor's cache file, is listed as having no metadata rather than as an error. Records of Perl ExifTool and of exiftool-rs are separate identities and never mixed in one archive.
+
+**What the format guarantees.**
+
+- **Nothing is overwritten.** A path whose content changes between runs keeps every content it had, each under a version label; `dngc versions` lists them.
+- **A missing source is not an error in the archive.** An emptied shuttle disk leaves its earlier records as they were.
+- **Reading changes nothing.** `status`, `verify`, `query`, `versions` and `restore` open the databases so that no `-wal` or `-shm` file appears, and need no source.
+- **Damage is preserved, not repaired.** A damaged source is kept damaged, byte for byte; finding damage is the comparison's job.
+
+An archive written before this layout kept its byte section at the top; `dngc migrate` moves it into `bytes/`, logging every step to `MIGRATION.jsonl` first, so an interrupted migration resumes and `--undo` reverses it.
+
 # A shuttle disk, through Semantic Unison
 
 A shuttle disk carries new photographs from a laptop to the archive. [Semantic Unison](https://firstpair.org/books/semantic-unison/) synchronizes it with the archive's tree. When only metadata changed, it sends the XMP packet, not the image, and checks with the preserved digest that nothing else moved. Before the shuttle is emptied, Unison preserves what it brought into a DNG Compare archive with the same layout, so a refilled path later gets a new *version* rather than overwriting the old one. `dngc versions` lists them and `dngc restore --version` rebuilds any of them.
