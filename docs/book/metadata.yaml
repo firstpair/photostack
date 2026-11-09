@@ -1,0 +1,11 @@
+title: The FirstPair Photo Stack
+subtitle: Identity, preservation, sync and repair for photo archives, and how nine tools fit together
+author: Alexy Khrabrov, with Claude as co-author
+language: en-US
+lang: en-US
+publisher: First Pair Press
+rights: Copyright 2026 Alexy Khrabrov. Licensed under the Apache License 2.0.
+title_stem: photostack
+cover_image: cover/photostack-cover.png
+headboard_image: cover/photostack-headboard.png
+description: A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end.
