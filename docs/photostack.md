@@ -77,9 +77,9 @@ Everything the walk above keeps ends up in one directory, a `dngc` archive. [DNG
 ```text
 ARCHIVE/
   ARCHIVE.json          every run: options, sources, implementation, exit statuses
-  MIGRATION.jsonl       the steps of a migration from an older layout, if there was one
+  MIGRATION.jsonl       each step of a migration from an older layout
   report/               the comparison
-    pairs.jsonl           one result per pair: raw data equal or not, metadata differences
+    pairs.jsonl           one result per pair: raw equal or not, metadata changes
     summary.json
     cache.sqlite3         what a repeated run reuses
   bytes/                the preservation: what rebuilds every source file
