@@ -402,6 +402,16 @@ replica, Unison can also keep the last few versions of each file it
 replaces as skeleton versions, a few kilobytes for the first and a few
 hundred bytes for each one after, which <code>unison-skeleton</code>
 lists and restores.</p>
+<p><strong>A library that only grows.</strong> The same comparison keeps
+a long-term library as it is while new photographs keep arriving on
+another disk. <code>unison SOURCE LIBRARY -semdiff</code> looks for
+every source file in the library and copies only those with no copy
+there; it never updates or deletes anything in the library. Given a
+phindex index of each tree (<code>-semindex</code>, once per index), it
+settles the pairs whose index rows are current without reading either
+file, and finds a file that was renamed, or renamed and edited, by its
+content. A photograph that reached the library by another route is found
+in its index and is not copied twice.</p>
 <h1 data-number="7" id="working-without-the-originals"><span class="header-section-number">7</span> Working without the
 originals</h1>
 <p>Previews are small, and originals are large and often offline. Two
@@ -459,6 +469,13 @@ question</h1>
 <td>Can I delete this copy?</td>
 <td><code>dngc run</code>, then <code>dngc verify</code></td>
 <td>DNG Compare</td>
+</tr>
+<tr>
+<td>Are the new photographs on this disk in my library yet, and if not,
+add them?</td>
+<td><code>phindex</code> on both, then
+<code>unison -semdiff -semindex</code></td>
+<td>phindex, Semantic Unison</td>
 </tr>
 <tr>
 <td>Can I keep editing the library my archive refers to?</td>
@@ -536,7 +553,7 @@ the engine rule</td>
 </tr>
 <tr>
 <td>DNG profiles, <code>SDE/0-preserved</code>, the shuttle cycle,
-skeleton versions</td>
+comparison from indexes (<code>-semindex</code>), skeleton versions</td>
 <td>Semantic Unison</td>
 </tr>
 <tr>

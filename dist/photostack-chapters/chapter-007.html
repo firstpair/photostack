@@ -70,5 +70,15 @@ replica, Unison can also keep the last few versions of each file it
 replaces as skeleton versions, a few kilobytes for the first and a few
 hundred bytes for each one after, which <code>unison-skeleton</code>
 lists and restores.</p>
+<p><strong>A library that only grows.</strong> The same comparison keeps
+a long-term library as it is while new photographs keep arriving on
+another disk. <code>unison SOURCE LIBRARY -semdiff</code> looks for
+every source file in the library and copies only those with no copy
+there; it never updates or deletes anything in the library. Given a
+phindex index of each tree (<code>-semindex</code>, once per index), it
+settles the pairs whose index rows are current without reading either
+file, and finds a file that was renamed, or renamed and edited, by its
+content. A photograph that reached the library by another route is found
+in its index and is not copied twice.</p>
 </body>
 </html>
