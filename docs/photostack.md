@@ -131,6 +131,8 @@ An archive written before this layout kept its byte section at the top; `dngc mi
 
 A shuttle disk carries new photographs from a laptop to the archive. [Semantic Unison](https://firstpair.org/books/semantic-unison/) synchronizes it with the archive's tree. When only metadata changed, it sends the XMP packet, not the image, and checks with the preserved digest that nothing else moved. Before the shuttle is emptied, Unison preserves what it brought into a DNG Compare archive with the same layout, so a refilled path later gets a new *version* rather than overwriting the old one. `dngc versions` lists them and `dngc restore --version` rebuilds any of them. On either replica, Unison can also keep the last few versions of each file it replaces as skeleton versions, a few kilobytes for the first and a few hundred bytes for each one after, which `unison-skeleton` lists and restores.
 
+**A library that only grows.** The same comparison keeps a long-term library as it is while new photographs keep arriving on another disk. `unison SOURCE LIBRARY -semdiff` looks for every source file in the library and copies only those with no copy there; it never updates or deletes anything in the library. Given a phindex index of each tree (`-semindex`, once per index), it settles the pairs whose index rows are current without reading either file, and finds a file that was renamed, or renamed and edited, by its content. A photograph that reached the library by another route is found in its index and is not copied twice.
+
 # Working without the originals
 
 Previews are small, and originals are large and often offline. Two paths make previews useful on their own.
@@ -148,6 +150,7 @@ Bringing those ratings back into a Lightroom catalog has to go through Lightroom
 | Was this only a metadata edit? | the preserved digest and the metadata diff | phidentify |
 | What changed in the metadata, across a whole archive? | `dngc query` | DNG Compare |
 | Can I delete this copy? | `dngc run`, then `dngc verify` | DNG Compare |
+| Are the new photographs on this disk in my library yet, and if not, add them? | `phindex` on both, then `unison -semdiff -semindex` | phindex, Semantic Unison |
 | Can I keep editing the library my archive refers to? | `dngc skeleton build`, once per run | DNG Compare |
 | The library moved or files were renamed; can I still restore? | `dngc restore --reference-root`, or `--index` with a phindex index | DNG Compare, phindex |
 | What did this file look like before the last edits? | `phindex restore`; `unison-skeleton restore` on a synchronized tree | phindex, Semantic Unison |
@@ -166,7 +169,7 @@ Each contract is explained in full in one book. The others give it a sentence an
 | How a file is cut into blocks and a skeleton | DNG Compare (its archive format), followed by phidentify and Semantic Unison |
 | Index schema, align tiers, pair files, stored skeletons and earlier contents | phindex |
 | Archive layout, byte-section rule, versions, the skeleton section, the engine rule | DNG Compare |
-| DNG profiles, `SDE/0-preserved`, the shuttle cycle, skeleton versions | Semantic Unison |
+| DNG profiles, `SDE/0-preserved`, the shuttle cycle, comparison from indexes (`-semindex`), skeleton versions | Semantic Unison |
 | Grammars and refusals for the XMP region | tiffgraph |
 | Container format and clones | packdir |
 | Engines, journals, sealing and the Turso rules | Tursolite |
