@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
-  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="dcterms.date" content="2026-11-10" />
   <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
   <title>Which tool answers which question</title>
   <style>
@@ -90,6 +90,23 @@ question</h1>
 <td>Can I delete this copy?</td>
 <td><code>dngc run</code>, then <code>dngc verify</code></td>
 <td>DNG Compare</td>
+</tr>
+<tr>
+<td>Can I keep editing the library my archive refers to?</td>
+<td><code>dngc skeleton build</code>, once per run</td>
+<td>DNG Compare</td>
+</tr>
+<tr>
+<td>The library moved or files were renamed; can I still restore?</td>
+<td><code>dngc restore --reference-root</code>, or <code>--index</code>
+with a phindex index</td>
+<td>DNG Compare, phindex</td>
+</tr>
+<tr>
+<td>What did this file look like before the last edits?</td>
+<td><code>phindex restore</code>; <code>unison-skeleton restore</code>
+on a synchronized tree</td>
+<td>phindex, Semantic Unison</td>
 </tr>
 <tr>
 <td>Did the shuttle copy arrive intact?</td>

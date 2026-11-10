@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
-  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="dcterms.date" content="2026-11-10" />
   <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
   <title>A shuttle disk, through Semantic Unison</title>
   <style>
@@ -65,6 +65,10 @@ preserved digest that nothing else moved. Before the shuttle is emptied,
 Unison preserves what it brought into a DNG Compare archive with the
 same layout, so a refilled path later gets a new <em>version</em> rather
 than overwriting the old one. <code>dngc versions</code> lists them and
-<code>dngc restore --version</code> rebuilds any of them.</p>
+<code>dngc restore --version</code> rebuilds any of them. On either
+replica, Unison can also keep the last few versions of each file it
+replaces as skeleton versions, a few kilobytes for the first and a few
+hundred bytes for each one after, which <code>unison-skeleton</code>
+lists and restores.</p>
 </body>
 </html>

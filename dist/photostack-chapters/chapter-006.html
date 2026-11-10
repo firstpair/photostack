@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
-  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="dcterms.date" content="2026-11-10" />
   <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
   <title>The archive</title>
   <style>
@@ -79,6 +79,8 @@ This is its shape.</p>
     batches/*.jsonl.gz    each file&#39;s metadata record on both sides of its pair
     differences.sqlite3   one row per changed tag per file, for SQL queries
     summary.json, provenance.json
+  skeletons/            what keeps the archive restorable after the reference is edited
+    skeletons.sqlite3     one skeleton per reference content
   trash/DROP/           payloads of records dngc drop moved to the trash</code></pre>
 <p><strong>Every source file has one record, of one of three
 kinds.</strong></p>
@@ -93,10 +95,22 @@ again and checked against the source’s SHA-256 before it counted.</li>
 file itself is kept under <code>originals/</code>.</li>
 </ul>
 <p><code>dngc restore</code> needs only a record, the payload it names,
-and for a delta the reference file; it checks the rebuilt file’s SHA-256
-and restores its mode, times, flags and extended attributes. Records
-name payloads relative to <code>bytes/</code>, so the archive can be
-moved as a whole.</p>
+and for an identical or delta record the reference’s content; it checks
+the rebuilt file’s SHA-256 and restores its mode, times, flags and
+extended attributes.</p>
+<p><strong>A reference is a content, not a path.</strong> A record names
+its reference by SHA-256 and remembers where that content was last seen.
+<code>restore</code> looks for it at that path, or below
+<code>--reference-root</code> when the tree has moved; then in any file
+a phindex index (<code>--index</code>) lists with the same SHA-256; and,
+when the file has been edited, it rebuilds the content from the
+archive’s skeleton and the edited file, which it can also find through
+an index by its image data. Whatever it finds is checked by SHA-256
+before it is used. A skeleton cannot bring back a block the edit itself
+destroyed, such as a regenerated embedded preview or changed pixels;
+<code>dngc keep</code> is for files that must not depend on a reference
+at all. Records name payloads relative to <code>bytes/</code>, so the
+archive can be moved as a whole.</p>
 <p><strong>The metadata section is evidence, not a backup.</strong> It
 holds what an editor changed, tag by tag, so a question such as “which
 files lost their rating” is one query. It never rebuilds a file; the
@@ -116,6 +130,10 @@ deletes a record. <code>dngc drop</code> does, in two stages: to the
 archive’s trash first, from which <code>dngc trash restore</code> brings
 it back, and for good only with <code>--force</code> or
 <code>trash empty</code>.</li>
+<li><strong>A reference may be edited, moved or renamed.</strong> Once
+its skeleton is in the archive, a metadata edit to a reference file
+leaves every record that names it restorable, and a moved or renamed one
+is found again by content.</li>
 <li><strong>A missing source is not an error in the archive.</strong> An
 emptied shuttle disk leaves its earlier records as they were.</li>
 <li><strong>Reading changes nothing.</strong> <code>status</code>,
@@ -134,8 +152,9 @@ tombstone, so later runs do not preserve those files again.
 <code>dngc keep</code> turns records that depend on a reference copy
 into full copies, so the reference can be deleted without loss; deleting
 a reference file under an identical or delta record would otherwise
-leave that record unrestorable. DNG Compare’s chapter on these commands
-has the details and examples.</p>
+leave that record unrestorable, since a skeleton covers an edit, not a
+deletion. DNG Compare’s chapter on these commands has the details and
+examples.</p>
 <p>An archive written before this layout kept its byte section at the
 top; <code>dngc migrate</code> moves it into <code>bytes/</code>,
 logging every step to <code>MIGRATION.jsonl</code> first, so an

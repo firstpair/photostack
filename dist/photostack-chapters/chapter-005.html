@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
-  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="dcterms.date" content="2026-11-10" />
   <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
   <title>One volume accounted for in another</title>
   <style>
@@ -152,15 +152,29 @@ archive and check every hash.</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dngc</span> verify /Volumes/Backup/dngc/Archive <span class="at">--restore-sample</span> 50</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dngc</span> query  /Volumes/Backup/dngc/Archive              <span class="co"># what metadata differed, most often first</span></span></code></pre></div></li>
+<li><p><strong>Make the backup safe to edit</strong> (DNG Compare). The
+archive’s deltas and identical records lean on the backup’s files as
+they are now, and the backup is a library someone will keep working in.
+One pass stores a skeleton of each of those files in the archive.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dngc</span> skeleton build /Volumes/Backup/dngc/Archive</span></code></pre></div></li>
 </ol>
 <p>Only now may the source volume be freed, and only together with the
 archive and the backup it refers to. Any file comes back with
-<code>dngc restore</code>.</p>
-<p>On one real pair of volumes, 1.7 million source files, this accounted
-for 1.2 million identical files without reading them, 480,000 DNGs whose
-raw samples matched but whose bytes did not, and 5,600 files with no
-copy at all. It also found 77 originals that had been truncated long ago
-while an intact converted copy existed elsewhere: the case where
-deleting by thumbnail would have kept the broken files.</p>
+<code>dngc restore</code>. After the skeleton pass the backup can go on
+being used: a rating, a caption or a develop setting written into one of
+its files no longer breaks the records that name it, because the archive
+rebuilds the file as it was from the edited one. If the backup is later
+moved to another disk, <code>dngc restore --reference-root</code> reads
+it there, and <code>--index</code> finds files that were renamed.</p>
+<p>On one real pair of volumes, 1.7 million source files, the skeleton
+pass took twelve hours and stored 1.47 million skeletons in 17 GB, about
+11 KB each, and all of a sample of 1,000 rebuilt their files exactly.
+The walk as a whole accounted for 1.2 million identical files without
+reading them, 480,000 DNGs whose raw samples matched but whose bytes did
+not, and 5,600 files with no copy at all. It also found 77 originals
+that had been truncated long ago while an intact converted copy existed
+elsewhere: the case where deleting by thumbnail would have kept the
+broken files.</p>
 </body>
 </html>

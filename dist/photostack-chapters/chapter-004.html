@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
-  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="dcterms.date" content="2026-11-10" />
   <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
   <title>The stack</title>
   <style>
@@ -73,34 +73,43 @@ reimplementation whose records are a separate identity and are never
 mixed with Perl’s.</p>
 <p><strong>Identity.</strong> <a
 href="https://firstpair.org/books/phidentify/">phidentify</a> computes
-six identities of a file. Whole-file SHA-256 answers “is it the same
+seven identities of a file. Whole-file SHA-256 answers “is it the same
 file?”; DNG raw blocks and image data answer “is it the same
-photograph?”; the Lightroom fingerprint answers “is it the original my
-catalog recorded?”; the metadata record says what an editor changed; and
-the preserved digest proves that only the XMP packet differs.</p>
+photograph?”; block marks, a sampled fingerprint of every large block in
+the file, answer “is it an edited copy of that file?”; the Lightroom
+fingerprint answers “is it the original my catalog recorded?”; the
+metadata record says what an editor changed; and the preserved digest
+proves that only the XMP packet differs. It also builds a file’s
+<em>skeleton</em>: the few kilobytes a metadata edit rewrites, with a
+map of the large blocks it leaves alone, from which the file as it was
+can be rebuilt out of its edited copy.</p>
 <p><strong>Index and alignment.</strong> <a
 href="https://firstpair.org/books/phindex/">phindex</a> keeps those
 identities for every file of a volume in one SQLite index, cheap to
 rerun. <code>phindex align</code> accounts for one volume in another by
 identity, so moved, renamed and re-dated copies are found, and writes
-pair lists of what matched and how.</p>
+pair lists of what matched and how. It keeps a skeleton of every file
+too, and the earlier contents of a path, so <code>phindex restore</code>
+brings back a file as it was before an editor wrote into it.</p>
 <p><strong>Comparison and preservation.</strong> <a
 href="https://firstpair.org/books/dng-compare/">DNG Compare</a> takes
 those pairs, or a whole tree, and through one command,
 <code>dngc</code>, compares each pair, preserves the source as a
 verified delta against its counterpart, and records metadata differences
 in a searchable index. Its archive rebuilds any source file byte for
-byte.</p>
+byte, and keeps doing so after the counterparts are edited, moved or
+renamed.</p>
 <p><strong>Sync and storage.</strong> <a
 href="https://firstpair.org/books/semantic-unison/">Semantic Unison</a>
 synchronizes photo trees, sending a metadata edit without resending
-image bytes, and preserves what a shuttle disk brings into the same kind
-of archive. <a href="https://firstpair.org/books/packdir/">packdir</a>
-keeps directories of many small files, such as a preview cache, as
-SQLite archives that still work like plain files. Both store their
-databases through <a
-href="https://firstpair.org/books/tursolite/">Tursolite</a>, one
-interface over SQLite and Turso.</p>
+image bytes, keeps the versions it replaces as skeletons of a few
+kilobytes each, and preserves what a shuttle disk brings into the same
+kind of archive. <a
+href="https://firstpair.org/books/packdir/">packdir</a> keeps
+directories of many small files, such as a preview cache, as SQLite
+archives that still work like plain files. Both store their databases
+through <a href="https://firstpair.org/books/tursolite/">Tursolite</a>,
+one interface over SQLite and Turso.</p>
 <p><strong>Applications.</strong> <a
 href="https://firstpair.org/books/lightroom-repair/">Lightroom
 Repair</a> repairs Lightroom Classic catalogs, previews and Sync without

@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc 3.12.1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
-  <meta name="dcterms.date" content="2026-11-09" />
+  <meta name="dcterms.date" content="2026-11-10" />
   <meta name="description" content="A map of the FirstPair photo tools (tiffgraph, phidentify, phindex, DNG Compare, Semantic Unison, packdir, Tursolite, diskproxy and Lightroom Repair), how they fit together, and a walk through them end to end." />
   <title>The FirstPair Photo Stack</title>
   <style>
@@ -115,7 +115,7 @@ figcaption { font-size: .88em; font-style: italic; color: #3b5563; margin-top: .
 <p class="subtitle">Identity, preservation, sync and repair for photo
 archives, and how nine tools fit together</p>
 <p class="author">Alexy Khrabrov, with Claude as co-author</p>
-<p class="date">2026-11-09</p>
+<p class="date">2026-11-10</p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
@@ -195,30 +195,39 @@ Perl ExifTool, the engine of record, and exiftool-rs, a faster
 reimplementation whose records are a separate identity and are never
 mixed with Perl’s.</p>
 <p><strong>Identity.</strong> <a href="https://firstpair.org/books/phidentify/">phidentify</a> computes
-six identities of a file. Whole-file SHA-256 answers “is it the same
+seven identities of a file. Whole-file SHA-256 answers “is it the same
 file?”; DNG raw blocks and image data answer “is it the same
-photograph?”; the Lightroom fingerprint answers “is it the original my
-catalog recorded?”; the metadata record says what an editor changed; and
-the preserved digest proves that only the XMP packet differs.</p>
+photograph?”; block marks, a sampled fingerprint of every large block in
+the file, answer “is it an edited copy of that file?”; the Lightroom
+fingerprint answers “is it the original my catalog recorded?”; the
+metadata record says what an editor changed; and the preserved digest
+proves that only the XMP packet differs. It also builds a file’s
+<em>skeleton</em>: the few kilobytes a metadata edit rewrites, with a
+map of the large blocks it leaves alone, from which the file as it was
+can be rebuilt out of its edited copy.</p>
 <p><strong>Index and alignment.</strong> <a href="https://firstpair.org/books/phindex/">phindex</a> keeps those
 identities for every file of a volume in one SQLite index, cheap to
 rerun. <code>phindex align</code> accounts for one volume in another by
 identity, so moved, renamed and re-dated copies are found, and writes
-pair lists of what matched and how.</p>
+pair lists of what matched and how. It keeps a skeleton of every file
+too, and the earlier contents of a path, so <code>phindex restore</code>
+brings back a file as it was before an editor wrote into it.</p>
 <p><strong>Comparison and preservation.</strong> <a href="https://firstpair.org/books/dng-compare/">DNG Compare</a> takes
 those pairs, or a whole tree, and through one command,
 <code>dngc</code>, compares each pair, preserves the source as a
 verified delta against its counterpart, and records metadata differences
 in a searchable index. Its archive rebuilds any source file byte for
-byte.</p>
+byte, and keeps doing so after the counterparts are edited, moved or
+renamed.</p>
 <p><strong>Sync and storage.</strong> <a href="https://firstpair.org/books/semantic-unison/">Semantic Unison</a>
 synchronizes photo trees, sending a metadata edit without resending
-image bytes, and preserves what a shuttle disk brings into the same kind
-of archive. <a href="https://firstpair.org/books/packdir/">packdir</a>
-keeps directories of many small files, such as a preview cache, as
-SQLite archives that still work like plain files. Both store their
-databases through <a href="https://firstpair.org/books/tursolite/">Tursolite</a>, one
-interface over SQLite and Turso.</p>
+image bytes, keeps the versions it replaces as skeletons of a few
+kilobytes each, and preserves what a shuttle disk brings into the same
+kind of archive. <a href="https://firstpair.org/books/packdir/">packdir</a> keeps
+directories of many small files, such as a preview cache, as SQLite
+archives that still work like plain files. Both store their databases
+through <a href="https://firstpair.org/books/tursolite/">Tursolite</a>,
+one interface over SQLite and Turso.</p>
 <p><strong>Applications.</strong> <a href="https://firstpair.org/books/lightroom-repair/">Lightroom
 Repair</a> repairs Lightroom Classic catalogs, previews and Sync without
 forging their state. <a href="https://firstpair.org/books/diskproxy/">diskproxy</a> serves a
@@ -253,16 +262,29 @@ become full copies. Metadata comes from the indexes.</p>
 archive and check every hash.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dngc</span> verify /Volumes/Backup/dngc/Archive <span class="at">--restore-sample</span> 50</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dngc</span> query  /Volumes/Backup/dngc/Archive              <span class="co"># what metadata differed, most often first</span></span></code></pre></div></li>
+<li><p><strong>Make the backup safe to edit</strong> (DNG Compare). The
+archive’s deltas and identical records lean on the backup’s files as
+they are now, and the backup is a library someone will keep working in.
+One pass stores a skeleton of each of those files in the archive.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dngc</span> skeleton build /Volumes/Backup/dngc/Archive</span></code></pre></div></li>
 </ol>
 <p>Only now may the source volume be freed, and only together with the
 archive and the backup it refers to. Any file comes back with
-<code>dngc restore</code>.</p>
-<p>On one real pair of volumes, 1.7 million source files, this accounted
-for 1.2 million identical files without reading them, 480,000 DNGs whose
-raw samples matched but whose bytes did not, and 5,600 files with no
-copy at all. It also found 77 originals that had been truncated long ago
-while an intact converted copy existed elsewhere: the case where
-deleting by thumbnail would have kept the broken files.</p>
+<code>dngc restore</code>. After the skeleton pass the backup can go on
+being used: a rating, a caption or a develop setting written into one of
+its files no longer breaks the records that name it, because the archive
+rebuilds the file as it was from the edited one. If the backup is later
+moved to another disk, <code>dngc restore --reference-root</code> reads
+it there, and <code>--index</code> finds files that were renamed.</p>
+<p>On one real pair of volumes, 1.7 million source files, the skeleton
+pass took twelve hours and stored 1.47 million skeletons in 17 GB, about
+11 KB each, and all of a sample of 1,000 rebuilt their files exactly.
+The walk as a whole accounted for 1.2 million identical files without
+reading them, 480,000 DNGs whose raw samples matched but whose bytes did
+not, and 5,600 files with no copy at all. It also found 77 originals
+that had been truncated long ago while an intact converted copy existed
+elsewhere: the case where deleting by thumbnail would have kept the
+broken files.</p>
 <h1 data-number="5" id="the-archive"><span class="header-section-number">5</span> The archive</h1>
 <p>Everything the walk above keeps ends up in one directory, a
 <code>dngc</code> archive. <a href="https://firstpair.org/books/dng-compare/">DNG Compare</a> owns the
@@ -285,6 +307,8 @@ This is its shape.</p>
     batches/*.jsonl.gz    each file&#39;s metadata record on both sides of its pair
     differences.sqlite3   one row per changed tag per file, for SQL queries
     summary.json, provenance.json
+  skeletons/            what keeps the archive restorable after the reference is edited
+    skeletons.sqlite3     one skeleton per reference content
   trash/DROP/           payloads of records dngc drop moved to the trash</code></pre>
 <p><strong>Every source file has one record, of one of three
 kinds.</strong></p>
@@ -299,10 +323,22 @@ again and checked against the source’s SHA-256 before it counted.</li>
 file itself is kept under <code>originals/</code>.</li>
 </ul>
 <p><code>dngc restore</code> needs only a record, the payload it names,
-and for a delta the reference file; it checks the rebuilt file’s SHA-256
-and restores its mode, times, flags and extended attributes. Records
-name payloads relative to <code>bytes/</code>, so the archive can be
-moved as a whole.</p>
+and for an identical or delta record the reference’s content; it checks
+the rebuilt file’s SHA-256 and restores its mode, times, flags and
+extended attributes.</p>
+<p><strong>A reference is a content, not a path.</strong> A record names
+its reference by SHA-256 and remembers where that content was last seen.
+<code>restore</code> looks for it at that path, or below
+<code>--reference-root</code> when the tree has moved; then in any file
+a phindex index (<code>--index</code>) lists with the same SHA-256; and,
+when the file has been edited, it rebuilds the content from the
+archive’s skeleton and the edited file, which it can also find through
+an index by its image data. Whatever it finds is checked by SHA-256
+before it is used. A skeleton cannot bring back a block the edit itself
+destroyed, such as a regenerated embedded preview or changed pixels;
+<code>dngc keep</code> is for files that must not depend on a reference
+at all. Records name payloads relative to <code>bytes/</code>, so the
+archive can be moved as a whole.</p>
 <p><strong>The metadata section is evidence, not a backup.</strong> It
 holds what an editor changed, tag by tag, so a question such as “which
 files lost their rating” is one query. It never rebuilds a file; the
@@ -322,6 +358,10 @@ deletes a record. <code>dngc drop</code> does, in two stages: to the
 archive’s trash first, from which <code>dngc trash restore</code> brings
 it back, and for good only with <code>--force</code> or
 <code>trash empty</code>.</li>
+<li><strong>A reference may be edited, moved or renamed.</strong> Once
+its skeleton is in the archive, a metadata edit to a reference file
+leaves every record that names it restorable, and a moved or renamed one
+is found again by content.</li>
 <li><strong>A missing source is not an error in the archive.</strong> An
 emptied shuttle disk leaves its earlier records as they were.</li>
 <li><strong>Reading changes nothing.</strong> <code>status</code>,
@@ -340,8 +380,9 @@ tombstone, so later runs do not preserve those files again.
 <code>dngc keep</code> turns records that depend on a reference copy
 into full copies, so the reference can be deleted without loss; deleting
 a reference file under an identical or delta record would otherwise
-leave that record unrestorable. DNG Compare’s chapter on these commands
-has the details and examples.</p>
+leave that record unrestorable, since a skeleton covers an edit, not a
+deletion. DNG Compare’s chapter on these commands has the details and
+examples.</p>
 <p>An archive written before this layout kept its byte section at the
 top; <code>dngc migrate</code> moves it into <code>bytes/</code>,
 logging every step to <code>MIGRATION.jsonl</code> first, so an
@@ -356,7 +397,11 @@ preserved digest that nothing else moved. Before the shuttle is emptied,
 Unison preserves what it brought into a DNG Compare archive with the
 same layout, so a refilled path later gets a new <em>version</em> rather
 than overwriting the old one. <code>dngc versions</code> lists them and
-<code>dngc restore --version</code> rebuilds any of them.</p>
+<code>dngc restore --version</code> rebuilds any of them. On either
+replica, Unison can also keep the last few versions of each file it
+replaces as skeleton versions, a few kilobytes for the first and a few
+hundred bytes for each one after, which <code>unison-skeleton</code>
+lists and restores.</p>
 <h1 data-number="7" id="working-without-the-originals"><span class="header-section-number">7</span> Working without the
 originals</h1>
 <p>Previews are small, and originals are large and often offline. Two
@@ -416,6 +461,23 @@ question</h1>
 <td>DNG Compare</td>
 </tr>
 <tr>
+<td>Can I keep editing the library my archive refers to?</td>
+<td><code>dngc skeleton build</code>, once per run</td>
+<td>DNG Compare</td>
+</tr>
+<tr>
+<td>The library moved or files were renamed; can I still restore?</td>
+<td><code>dngc restore --reference-root</code>, or <code>--index</code>
+with a phindex index</td>
+<td>DNG Compare, phindex</td>
+</tr>
+<tr>
+<td>What did this file look like before the last edits?</td>
+<td><code>phindex restore</code>; <code>unison-skeleton restore</code>
+on a synchronized tree</td>
+<td>phindex, Semantic Unison</td>
+</tr>
+<tr>
 <td>Did the shuttle copy arrive intact?</td>
 <td>SHA-256; the preserved digest if metadata was written on
 arrival</td>
@@ -454,19 +516,27 @@ sentence and a link.</p>
 </thead>
 <tbody>
 <tr>
-<td>The identities and what equality proves</td>
+<td>The identities and what equality proves; block marks</td>
 <td>phidentify</td>
 </tr>
 <tr>
-<td>Index schema, align tiers, pair files</td>
+<td>How a file is cut into blocks and a skeleton</td>
+<td>DNG Compare (its archive format), followed by phidentify and
+Semantic Unison</td>
+</tr>
+<tr>
+<td>Index schema, align tiers, pair files, stored skeletons and earlier
+contents</td>
 <td>phindex</td>
 </tr>
 <tr>
-<td>Archive layout, byte-section rule, versions, the engine rule</td>
+<td>Archive layout, byte-section rule, versions, the skeleton section,
+the engine rule</td>
 <td>DNG Compare</td>
 </tr>
 <tr>
-<td>DNG profiles, <code>SDE/0-preserved</code>, the shuttle cycle</td>
+<td>DNG profiles, <code>SDE/0-preserved</code>, the shuttle cycle,
+skeleton versions</td>
 <td>Semantic Unison</td>
 </tr>
 <tr>
@@ -501,18 +571,22 @@ walks a TIFF or DNG file’s structure under a fixed grammar and finds its
 editable XMP packet.</li>
 <li><strong><a href="https://firstpair.org/books/phidentify/">phidentify</a></strong>
 computes a photo’s identities: SHA-256, DNG raw blocks, image data,
-Lightroom fingerprint, metadata record and preserved digest.</li>
+block marks, Lightroom fingerprint, metadata record and preserved
+digest, and the skeleton that rebuilds a file from an edited copy.</li>
 <li><strong><a href="https://firstpair.org/books/phindex/">phindex</a></strong> keeps
-those identities for every file of a volume, and aligns two volumes by
-content.</li>
+those identities and a skeleton for every file of a volume, aligns two
+volumes by content, and restores a file as it was before a metadata
+edit.</li>
 <li><strong><a href="https://firstpair.org/books/dng-compare/">DNG
 Compare</a></strong> compares pairs and preserves one side byte for byte
-as deltas against the other, with a searchable metadata section, through
+as deltas against the other, restorable even after the other side is
+edited, with a searchable metadata section, through
 <code>dngc</code>.</li>
 <li><strong><a href="https://firstpair.org/books/semantic-unison/">Semantic
 Unison</a></strong> synchronizes photo trees, sending metadata edits
-without resending image bytes, and preserves what a shuttle disk brings
-into the same archives.</li>
+without resending image bytes, keeps the versions it replaces as small
+skeletons, and preserves what a shuttle disk brings into the same
+archives.</li>
 <li><strong><a href="https://firstpair.org/books/packdir/">packdir</a></strong> keeps
 directories of small files as SQLite archives that still work like plain
 files.</li>
